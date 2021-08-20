@@ -1,11 +1,13 @@
 <p align="center">
     <b>
     <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/355bc3df228d9529a15e53d4bb59757e191c0225/logo/logo.svg" style='width: 200px;height: 200px;' /><br>
+    <p align="center">
+    <a href="https://github.com/kubernetes-lab/kubectl-screenfetch/actions/workflows/release.yml"><img src="https://github.com/kubernetes-lab/kubectl-screenfetch/actions/workflows/release.yml/badge.svg" alt="release"></a>
+    </p>
     <p align="center">Screenfetch for Kubernetes</p>
     <p align="center">Inspired by <a href="https://github.com/KittyKatt/screenFetch">Screenfetch</a> and <a href="https://github.com/dylanaraps/neofetch">neofetch</a></p>
     </b>
 </p>
-
 
 ## Installation
 

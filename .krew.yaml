@@ -7,23 +7,23 @@ spec:
   homepage: https://github.com/kubernetes-lab/kubectl-screenfetch
   shortDescription: Screenfetch for Kubernetes
   description: |
-    This plugin fetchs stats info within a Kubernetes cluster.
+    This plugin fetchs stats info within a Kubernetes cluster, just like screenfetch or neofetch in any OS.
   platforms:
     - selector:
         matchLabels:
           os: linux
           arch: amd64
-        {{addURIAndSha "https://github.com/ahmetb/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
-        bin: kubectl-screenfetch
+      {{addURIAndSha "https://github.com/kubernetes-lab/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
+      bin: kubectl-screenfetch
     - selector:
         matchLabels:
           os: darwin
           arch: amd64
-      {{addURIAndSha "https://github.com/ahmetb/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/kubernetes-lab/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
       bin: kubectl-screenfetch
     - selector:
         matchLabels:
           os: windows
           arch: amd64
-      {{addURIAndSha "https://github.com/ahmetb/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/kubernetes-lab/kubectl-screenfetch/releases/download/{{ .TagName }}/kubectl-screenfetch_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
       bin: kubectl-screenfetch.exe
