@@ -2,11 +2,14 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/gilliek/go-xterm256/xterm256"
+
+	"github.com/kubernetes-lab/kubectl-screenfetch/pkg/k8s"
 )
 
 const (
@@ -47,26 +50,31 @@ func init() {
 }
 
 func main() {
-	logo := `                        ..                        
-                   .:;i1tt1i;:.                   
-             .,:;1ttfffttttffftt1;:,.             
-        .,:i1ttfffttttttGGttttttffftt1i:,.        
-      ;1tffttttttttttttt88tttttttttttttfft1;      
-     ;fttttLLtttttfLCG00@@00GCLftttttLLttttf;     
-    .ttttttC00CLC08800CG@@GC00880CLC00Ctttttt.    
-    iftttttttf@@@@0ft11L@@L11tf0@@@@ftttttttfi    
-   ,ftttttttt0@8LG@@8GL0@@0LG8@@GL8@0ttttttttf,   
-   1ttttttttC@@f11tL8@@@00@@@8Lt11f@@Ctttttttt1   
-  :ftttttttt0@8CG008@@@GttG@@@800GC8@0ttttttttf:  
- .ttttttG0GG8@@@0GGGL0@@@@@@0LGGG0@@@8GG0Gtttttt. 
- ,tfttttLLfftC@@Ct11f8@8LL8@8f11tC@@CtffLLttttft, 
-  .itfttttttttf0@@GC@@Gt11tG@@CG@@0fttttttttfti.  
-    .itfttttttttfL8@@@800000@@@8Cfttttttttfti.    
-      .;tftttttttL8GfLCCCCCCLfG8Ltttttttfti.      
-        .;tfttttf0GttttttttttttG0fttttft;.        
-          .;tfttttttttttttttttttttttft;.          
-            .;1tttttttttttttttttttt1;.            
-               ....................    `
+	logo := `                                                  
+                     ,:i11i:,                     
+                 ,:ittffttfftti:,                 
+            .,;ittffttttttttttfftti;,.            
+        .,;1tffftttttttt00ttttttttffft1;,.        
+      :1tfffttttttttttt1881tttttttttttffft1:      
+     :ftttttttttttttfLLC@8CLfftttttttttttttf:     
+     1tttttG0LtttLG8@@@@@@@@@@8GLtttL0Gttttt1     
+    ,ftttttLG80G0@@0CLtL@@LtLC0@@0G08GLtttttf,    
+    1ttttttt1t8@@@Gf111C@@C111fG@@@8t1ttttttt1    
+   ,ftttttttt0@8C0@@8Cf0@@0fC8@@0C8@0ttttttttf,   
+   iftttttttL@@L1tfG@@@@@@@@@@Gft1L@@Ltttttttfi   
+  .tttttttttG@8tttff0@@GffG@@0ffttt8@0ttttttttt.  
+  iftttttttt0@@08@@@@@@0LL0@@@@@@80@@0ttttttttfi  
+ .tttttf08008@@@GGCLf0@@@@@@0fLCCG@@@80080fttttt. 
+ ,ftttttLLfttG@@L111f8@@LL@@8f111L@@GttfLLtttttf, 
+  :tftttttttttC@@0Lf8@8f11f8@8fL0@@Ctttttttttft:  
+   .ittttttttttfG@@@@@CffffC@@@@@Gftttttttttti.   
+     ,1ftttttttttt0@8@@@@@@@@8@0ttttttttttf1,     
+       ;tftttttttL@GtffLLLLfftG@Ctttttttft;       
+        .iftttttf80tttttttttttt08ftttttfi.        
+          :tfttttttttttttttttttttttttft:          
+           .itfttttttttttttttttttttfti.           
+             ,i11111111111111111111i,             
+                                                  `
 	logoSlice := strings.Split(logo, "\n")
 
 	s := getInformation(xterm256.Green, xterm256.White, xterm256.Red, xterm256.Red)
@@ -90,35 +98,37 @@ func main() {
 }
 
 func getInformation(titleColor xterm256.Color, infoColor xterm256.Color, userColor xterm256.Color, sepColor xterm256.Color) (s []string) {
+	ks := k8s.GetKubernetesInfo(context.Background())
+
 	for _, infoMap := range informationList {
 		for k, v := range infoMap {
 			switch k {
 			case K_CONTEXT:
-				s = append(s, xterm256.Sprint(userColor, "user.Username"))
+				s = append(s, xterm256.Sprint(userColor, ks.CurrentContext))
 			case K_SEP:
 				s = append(s, xterm256.Sprint(sepColor, "--------------------------------"))
 			case K_VERSION:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, "v1.21.1"))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.Version))
 			case K_NODES:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.NodesCount))
 			case K_NAMESPACES:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.NamespacesCount))
 			case K_DEPLOYMENTS:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.DeploymentsCount))
 			case K_PODS:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.PodsCount))
 			case K_SERVICES:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.ServicesCount))
 			case K_INGRESSES:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.IngressesCount))
 			case K_PVS:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.PVsCount))
 			case K_CRI:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.CRI))
 			case K_CNI:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.CNI))
 			case K_CSI:
-				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, 7))
+				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.CSI))
 			}
 		}
 	}
