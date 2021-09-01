@@ -2,13 +2,18 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	_ "embed"
 	"fmt"
+	"image"
+	"log"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/gilliek/go-xterm256/xterm256"
 
+	"github.com/kubernetes-lab/kubectl-screenfetch/pkg/ascii"
 	"github.com/kubernetes-lab/kubectl-screenfetch/pkg/k8s"
 )
 
@@ -30,6 +35,9 @@ const (
 
 var informationList []map[string]string
 
+//go:embed assets/kubernetes.png
+var logoBytes []byte
+
 func init() {
 	// Init "Info: InfoTitle"
 	informationList = []map[string]string{
@@ -50,36 +58,17 @@ func init() {
 }
 
 func main() {
-	logo := `                                                  
-                     ,:i11i:,                     
-                 ,:ittffttfftti:,                 
-            .,;ittffttttttttttfftti;,.            
-        .,;1tffftttttttt00ttttttttffft1;,.        
-      :1tfffttttttttttt1881tttttttttttffft1:      
-     :ftttttttttttttfLLC@8CLfftttttttttttttf:     
-     1tttttG0LtttLG8@@@@@@@@@@8GLtttL0Gttttt1     
-    ,ftttttLG80G0@@0CLtL@@LtLC0@@0G08GLtttttf,    
-    1ttttttt1t8@@@Gf111C@@C111fG@@@8t1ttttttt1    
-   ,ftttttttt0@8C0@@8Cf0@@0fC8@@0C8@0ttttttttf,   
-   iftttttttL@@L1tfG@@@@@@@@@@Gft1L@@Ltttttttfi   
-  .tttttttttG@8tttff0@@GffG@@0ffttt8@0ttttttttt.  
-  iftttttttt0@@08@@@@@@0LL0@@@@@@80@@0ttttttttfi  
- .tttttf08008@@@GGCLf0@@@@@@0fLCCG@@@80080fttttt. 
- ,ftttttLLfttG@@L111f8@@LL@@8f111L@@GttfLLtttttf, 
-  :tftttttttttC@@0Lf8@8f11f8@8fL0@@Ctttttttttft:  
-   .ittttttttttfG@@@@@CffffC@@@@@Gftttttttttti.   
-     ,1ftttttttttt0@8@@@@@@@@8@0ttttttttttf1,     
-       ;tftttttttL@GtffLLLLfftG@Ctttttttft;       
-        .iftttttf80tttttttttttt08ftttttfi.        
-          :tfttttttttttttttttttttttttft:          
-           .itfttttttttttttttttttttfti.           
-             ,i11111111111111111111i,             
-                                                  `
+	logoImage, _, err := image.Decode(bytes.NewReader(logoBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	converter := ascii.NewImageConverter()
+	logo := converter.ToASCIIString(logoImage, &ascii.DefaultOptions)
 	logoSlice := strings.Split(logo, "\n")
 
 	s := getInformation(xterm256.Green, xterm256.White, xterm256.Red, xterm256.Red)
-	scanner := bufio.NewScanner(strings.NewReader(""))
-	scanner = bufio.NewScanner(strings.NewReader(logo))
+	scanner := bufio.NewScanner(strings.NewReader(logo))
 
 	index := 0
 	for i, str := range s {
@@ -106,7 +95,7 @@ func getInformation(titleColor xterm256.Color, infoColor xterm256.Color, userCol
 			case K_CONTEXT:
 				s = append(s, xterm256.Sprint(userColor, ks.CurrentContext))
 			case K_SEP:
-				s = append(s, xterm256.Sprint(sepColor, "--------------------------------"))
+				s = append(s, xterm256.Sprint(sepColor, "---------------------------"))
 			case K_VERSION:
 				s = append(s, xterm256.Sprint(titleColor, v+": ")+xterm256.Sprint(infoColor, ks.Version))
 			case K_NODES:
